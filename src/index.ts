@@ -1,6 +1,5 @@
 import { error, info, success } from "./logger";
 
-success("Loading Dependencies Successfully!");
 import { Client } from "discord.js";
 import { readFileSync } from "fs";
 import { onReady } from "./discord-events/ready.event";
@@ -8,7 +7,7 @@ import { onMessage } from "./discord-events/message.event";
 import { messageReactionAdd } from "./discord-events/messageReactionAdd.event";
 import { messageReactionRemove } from "./discord-events/messageReactionRemove.event";
 import { Config } from "./models/config.model";
-
+success("Loading Dependencies Successfully!");
 
 info("Loading config files...");
 require('dotenv').config();
