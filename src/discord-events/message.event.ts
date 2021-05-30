@@ -75,10 +75,9 @@ function collectCommands(): any {
 function sendMessage(msg: Message, channels: string[]) {
     if(msg.author.id == client.user?.id) return;
     let emebd = new MessageEmbed()
-        .setAuthor(msg.author.tag, msg.author.displayAvatarURL({dynamic: true}))
+        .setAuthor(`${msg.author.tag} (${msg.guild?.name})`, msg.author.displayAvatarURL({dynamic: true}))
         .setColor('#3510FA')
-        .setDescription(msg.content)
-        .setFooter(`Message from -> ${msg.guild?.name}`, msg.guild?.iconURL({dynamic: true}) || "")
+        .setDescription(msg.content);
 
     if(msg.attachments.first()) emebd.setImage(msg.attachments.first()?.url || "");
 

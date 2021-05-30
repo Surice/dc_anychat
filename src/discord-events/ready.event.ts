@@ -11,7 +11,7 @@ export function onReady(client: Client): void {
     success(`Bot-Client online as: ${client.user.tag}`);
     
     client.user.setActivity({
-        type: config.activity.type,
-        name: `on ${client.guilds.cache.size} Guilds`
+        type: "COMPETING",
+        name: `${client.guilds.cache.size} Guilds`
     });
 }

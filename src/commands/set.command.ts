@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { readFileSync, writeFileSync } from "fs";
 import { client, config } from "..";
 
@@ -16,6 +16,11 @@ export async function main(msg: Message, args: string[]): Promise<void> {
 
     if(!channel) {
         msg.reply("invalid channel");
+        return;
+    }
+
+    if((channel as TextChannel).guild.id != msg.guild?.id) {
+        msg.reply("not allowed");
         return;
     }
 
