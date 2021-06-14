@@ -1,11 +1,9 @@
 import { Channel, Message, MessageEmbed, TextChannel } from "discord.js";
 import { readFileSync, readdirSync } from "fs";
-import { client } from "..";
+import { client, config } from "..";
 import { error } from "../__shared/service/logger";
 import { Config } from "../__shared/models/config.model";
 import { authMember } from "../__shared/service/authGuard.service";
-
-const config: Config = JSON.parse(readFileSync('./config.json', "utf-8").toString());
 
 let commands = new Array();
 

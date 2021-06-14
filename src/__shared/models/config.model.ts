@@ -1,12 +1,7 @@
-export class Config {
+export interface Config {
     prefix: string;
     owner: string;
     activity?: Activity;
-
-    constructor(configData: any) {
-        this.prefix = configData.prefix;
-        this.owner = configData.owner;
-    }
 }
 
 class Activity {

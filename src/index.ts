@@ -8,11 +8,12 @@ import { messageReactionAdd } from "./discord-events/messageReactionAdd.event";
 import { messageReactionRemove } from "./discord-events/messageReactionRemove.event";
 import { Config } from "./__shared/models/config.model";
 import { guildDelete } from "./discord-events/guildDelete.event";
+import { guildCreate } from "./discord-events/guildCreate.event";
 success("Loading Dependencies Successfully!");
 
 info("Loading config files...");
 require('dotenv').config();
-const config: Config = new Config(JSON.parse(readFileSync('./config.json', "utf-8").toString()));
+const config: Config = JSON.parse(readFileSync('./config.json', "utf-8").toString());
 
 
 info("Init Discord Client");
@@ -37,6 +38,7 @@ client.on('message', onMessage);
 client.on("messageReactionAdd", messageReactionAdd);
 client.on("messageReactionRemove", messageReactionRemove);
 
+client.on("guildCreate", guildCreate);
 client.on("guildDelete", guildDelete);
 /*
 * END Client events
