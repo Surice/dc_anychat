@@ -7,12 +7,12 @@ export const info = {
     description: "set the global chat channel",
     argsRequired: false,
     admin: true,
-    help: "use `"+ config.prefix+ "invite`"
+    help: "use `"+ config.prefix+ "remove <#channel>`"
 }
 
 export async function main(msg: Message, args: string[]): Promise<void> {
     const channel = (msg.mentions.channels.first()) ? msg.mentions.channels.first() : await client.channels.fetch(args[0]);
-    let channels: string[] = JSON.parse(readFileSync(`${__dirname}/../channels.json`, "utf-8").toString());
+    let channels: string[] = JSON.parse(readFileSync(`${__dirname}/../__shared/data/channels.json`, "utf-8").toString());
 
     if(!channel) {
         msg.reply("invalid channel");
@@ -26,6 +26,6 @@ export async function main(msg: Message, args: string[]): Promise<void> {
 
     const trash = channels.splice(channels.indexOf(channel.id), 1);
 
-    writeFileSync(`${__dirname}/../channels.json`, JSON.stringify(channels));
+    writeFileSync(`${__dirname}/../__shared/data/channels.json`, JSON.stringify(channels));
     msg.react("✅");
 }

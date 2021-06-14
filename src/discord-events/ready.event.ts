@@ -1,7 +1,7 @@
 import { Client } from "discord.js";
 import { readFileSync } from "fs";
-import { success } from "../logger";
-import { Config } from "../models/config.model";
+import { success } from "../__shared/service/logger";
+import { Config } from "../__shared/models/config.model";
 
 
 export function onReady(client: Client): void {

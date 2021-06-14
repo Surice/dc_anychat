@@ -1,58 +1,63 @@
-import { Message, MessageEmbed, TextChannel } from "discord.js";
+import { Channel, Message, MessageEmbed, TextChannel } from "discord.js";
 import { readFileSync, readdirSync } from "fs";
 import { client } from "..";
-import { error } from "../logger";
-import { Config } from "../models/config.model";
+import { error } from "../__shared/service/logger";
+import { Config } from "../__shared/models/config.model";
+import { authMember } from "../__shared/service/authGuard.service";
 
 const config: Config = JSON.parse(readFileSync('./config.json', "utf-8").toString());
 
 let commands = new Array();
 
 export async function onMessage(msg: Message): Promise<void> {
-    if(!msg.author) {
+    if (!msg.author) {
         error("unknown User", "msg event");
         console.log(msg.author);
         return;
     }
-    if(msg.webhookID) return;
+    if (msg.webhookID || msg.author.bot) return;
+    if(msg.channel.type != "text") return;
 
-    let channels: string[] = JSON.parse(readFileSync(`${__dirname}/../channels.json`, "utf-8").toString());
+    let channels: string[] = JSON.parse(readFileSync(`${__dirname}/../__shared/data/channels.json`, "utf-8").toString());
 
 
-    const check = await checkForCommand(msg);
-    if(check) return;
+    const checkCommand = await checkForCommand(msg);
+    if (checkCommand) return;
 
-    if(channels.includes(msg.channel.id)) sendMessage(msg, channels);
+    if (channels.includes(msg.channel.id)) sendMessage(msg, channels);
 }
 
 async function checkForCommand(msg: Message): Promise<boolean | undefined> {
-    if(!msg.content.startsWith(config.prefix)) return;
+    if (!msg.content.startsWith(config.prefix)) return;
 
 
-    let commandName = msg.content.split(' ')[0].slice(config.prefix.length).toLocaleLowerCase();
-    const args = msg.content.split(' ').slice(1).join(' ');
+    const commandName = msg.content.split(' ')[0].slice(config.prefix.length).toLocaleLowerCase(),
+        args = msg.content.split(' ').slice(1);
 
 
     collectCommands();
 
-    if(!commands.find(command => command.name == commandName)) {
+    if (!commands.find(command => command.name == commandName)) {
         msg.reply("command not found");
         return;
     }
 
     let command = require(`../commands/${commandName}.command`);
 
-    if(command.admin && !msg.member?.permissions.has('ADMINISTRATOR')) {
+    if(!msg.member) return;
+    const auth = authMember(msg.member);
+
+    if (command.admin && !auth) {
         msg.reply("unauthorized");
         return
     };
 
-    if(!args[0] && command.info.argsRequired) {
+    if (!args[0] && command.info.argsRequired) {
         msg.reply(command.info.help);
     } else {
-        try{
+        try {
             command.main(msg, args);
-        } catch(err) {
+        } catch (err) {
             msg.reply("command broken");
             error(err.code);
         }
@@ -61,9 +66,9 @@ async function checkForCommand(msg: Message): Promise<boolean | undefined> {
 }
 
 
-function collectCommands(): any {
-    const files = readdirSync(`${__dirname}/../commands/`, {withFileTypes: true});
-    
+function collectCommands(): void {
+    const files = readdirSync(`${__dirname}/../commands/`, { withFileTypes: true });
+
     files.forEach(file => {
         commands.push({
             name: file.name.split('.')[0]
@@ -72,18 +77,23 @@ function collectCommands(): any {
 }
 
 
+
 function sendMessage(msg: Message, channels: string[]) {
-    if(msg.author.id == client.user?.id) return;
+    if (msg.author.id == client.user?.id) return;
     let emebd = new MessageEmbed()
-        .setAuthor(`${msg.author.tag} (${msg.guild?.name})`, msg.author.displayAvatarURL({dynamic: true}))
-        .setColor('#3510FA')
+        .setAuthor(`${msg.author.tag} (${msg.guild?.name})`, msg.author.displayAvatarURL({ dynamic: true }))
+        .setColor('#25AABE')
         .setDescription(msg.content);
 
-    if(msg.attachments.first()) emebd.setImage(msg.attachments.first()?.url || "");
+    if (msg.attachments.first()) emebd.setImage(msg.attachments.first()?.url || "");
 
     channels.forEach(async channel => {
-        if(channel == msg.channel.id) return;
+        if (channel == msg.channel.id) return;
 
-        (await client.channels.fetch(channel) as TextChannel).send(emebd).catch(() => { });
+        client.channels.fetch(channel).then((channel: Channel) => {
+            if(!channel || channel.type != "text") return;
+
+            (channel as TextChannel).send(emebd).catch(() => { });
+        }).catch(err => {});
     });
 }
