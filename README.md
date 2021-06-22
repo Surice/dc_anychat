@@ -1,5 +1,5 @@
 # dc_anychat
 ---
 ##ToDos
-  [] Emoji support
-  [] Edit messages
+  * [] Emoji support
+  * [] Edit messages
