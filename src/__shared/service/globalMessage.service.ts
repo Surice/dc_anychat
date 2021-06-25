@@ -4,10 +4,9 @@ import { client } from "../..";
 export async function sendNewGlobalMessage(msg: Message, channels: string[]): Promise<void> {
     if (msg.author.id == client.user?.id) return;
     let emebd = new MessageEmbed()
-        .setAuthor(`${msg.author.tag} (${msg.guild?.name})`, msg.author.displayAvatarURL({ dynamic: true }))
+        .setAuthor(`${msg.author.tag} (${msg.guild?.name})`, msg.author.displayAvatarURL({ dynamic: true })+ `?msgID=${msg.id}`)
         .setColor('#25AABE')
         .setDescription(msg.content)
-        .setFooter(msg.id);
 
     if (msg.attachments.first()) emebd.setImage(msg.attachments.first()?.url || "");
 
@@ -28,7 +27,7 @@ export async function updateGlobalMessage(msg: Message | PartialMessage, channel
         if(!channel) return;
 
         channel.messages.fetch({limit: 100}).then(messages => {
-            const myMessage: Message | undefined = messages.filter(message => message.embeds[0] && message.embeds[0].footer?.text == msg.id).first();
+            const myMessage: Message | undefined = messages.filter(message => message.embeds[0] && message.embeds[0].author?.iconURL?.split("?msgID=")[1] == msg.id).first();
             if(!myMessage) return;
 
             let embed = myMessage.embeds[0];
