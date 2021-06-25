@@ -1,0 +1,41 @@
+import { Channel, Message, MessageEmbed, PartialMessage, TextChannel } from "discord.js";
+import { client } from "../..";
+
+export async function sendNewGlobalMessage(msg: Message, channels: string[]): Promise<void> {
+    if (msg.author.id == client.user?.id) return;
+    let emebd = new MessageEmbed()
+        .setAuthor(`${msg.author.tag} (${msg.guild?.name})`, msg.author.displayAvatarURL({ dynamic: true }))
+        .setColor('#25AABE')
+        .setDescription(msg.content)
+        .setFooter(msg.id);
+
+    if (msg.attachments.first()) emebd.setImage(msg.attachments.first()?.url || "");
+
+    channels.forEach(async channel => {
+        if (channel == msg.channel.id) return;
+
+        client.channels.fetch(channel).then((channel: Channel) => {
+            if(!channel || channel.type != "text") return;
+
+            (channel as TextChannel).send(emebd).catch(() => { });
+        }).catch(err => {});
+    });
+}
+
+export async function updateGlobalMessage(msg: Message | PartialMessage, channels: string[]): Promise<void> {
+    channels.forEach(async (channelID: string) => {
+        const channel = await client.channels.fetch(channelID).catch(err => {}) as TextChannel;
+        if(!channel) return;
+
+        channel.messages.fetch({limit: 100}).then(messages => {
+            const myMessage: Message | undefined = messages.filter(message => message.embeds[0] && message.embeds[0].footer?.text == msg.id).first();
+            if(!myMessage) return;
+
+            let embed = myMessage.embeds[0];
+
+            embed.setDescription(msg.content);
+
+            myMessage.edit(embed);
+        });
+    });
+}

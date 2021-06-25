@@ -23,5 +23,7 @@ export async function main(msg: Message, args: string[]): Promise<void> {
             name: "Set", value: "Add a Channel to the global chat. \nuse `"+ config.prefix+"set <#channel | channel_id>`"
         }, {
             name: "remove", value: "Removes a Channel from the global chat. \nuse `"+ config.prefix+"remove <#channel | channel_id>`"
-        }])
+        }]);
+
+    msg.reply(embed);
 }
