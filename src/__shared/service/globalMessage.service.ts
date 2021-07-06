@@ -7,21 +7,33 @@ export async function sendNewGlobalMessage(msg: Message, channels: string[]): Pr
         .setTitle(msg.author.username)
         .setThumbnail(msg.author.displayAvatarURL({ dynamic: true })+ `?msgID=${msg.id}`)
         .setColor('#2F3136')
-        .setDescription(msg.content)
+        .addField("\u200b", "**"+msg.content+"**")
         .addField("\u200b", "`🤖`"+ `[Bot-Invite](${await client.generateInvite({permissions: ["ADD_REACTIONS","SEND_MESSAGES","MANAGE_MESSAGES"]})}) ◊ `+ "`📍`[Server-Invite](https://twitch.tv/rocketment)")
         .setFooter(msg.guild?.name+ ` (${msg.guild?.members.cache.size} User)`, msg.guild?.iconURL({dynamic: true}) || "");
 
     if (msg.attachments.first()) emebd.setImage(msg.attachments.first()?.url || "");
 
+    if(msg.reference?.messageID) {
+        const ref = await (await client.channels.fetch(msg.reference.channelID) as TextChannel).messages.fetch(msg.reference.messageID);
+
+        let data = {
+            author: (ref.embeds[0]) ? ref.embeds[0].title : ref.author.username,
+            content: (ref.embeds[0]) ? ref.embeds[0].fields[0].value : ref.content
+        } 
+        emebd.setDescription(`
+            reference to: ${data.author}
+            > ${data.content}
+        `);
+    }
+
     channels.forEach(async channel => {
+        if(channel == msg.channel.id) return;
         client.channels.fetch(channel).then((channel: Channel) => {
             if(!channel || channel.type != "text") return;
 
             (channel as TextChannel).send(emebd).catch(() => { });
         }).catch(err => {});
     });
-
-    msg.delete();
 }
 
 export async function updateGlobalMessage(msg: Message | PartialMessage, channels: string[]): Promise<void> {
