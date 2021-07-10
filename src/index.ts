@@ -10,6 +10,7 @@ import { Config } from "./__shared/models/config.model";
 import { guildDelete } from "./discord-events/guildDelete.event";
 import { guildCreate } from "./discord-events/guildCreate.event";
 import { messageUpdate } from "./discord-events/messageUpdate.event";
+import { messageDelete } from "./discord-events/messageDelete.event";
 success("Loading Dependencies Successfully!");
 
 info("Loading config files...");
@@ -36,6 +37,7 @@ client.on('ready', () => {
 /* Client events */
 client.on('message', onMessage);
 client.on('messageUpdate', messageUpdate);
+client.on('messageDelete', messageDelete);
 
 client.on("messageReactionAdd", messageReactionAdd);
 client.on("messageReactionRemove", messageReactionRemove);

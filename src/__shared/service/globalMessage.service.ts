@@ -39,20 +39,37 @@ export async function sendNewGlobalMessage(msg: Message, channels: Channels): Pr
     }
 }
 
-export async function updateGlobalMessage(msg: Message | PartialMessage, channels: string[]): Promise<void> {
-    channels.forEach(async (channelID: string) => {
-        const channel = await client.channels.fetch(channelID).catch(err => { }) as TextChannel;
-        if (!channel) return;
+export async function updateGlobalMessage(msg: Message | PartialMessage, channels: Channels): Promise<void> {
+    for (let channelID in channels) {
+        const channel = await client.channels.fetch(channels[channelID]).catch(err => { }) as TextChannel;
+        if (channel) {
+            channel.messages.fetch({ limit: 100 }).then(messages => {
+                const myMessage: Message | undefined = messages.filter(message => message.embeds[0] && message.embeds[0].thumbnail?.url.split("?msgID=")[1] == msg.id).first();
+                if (!myMessage) return;
 
-        channel.messages.fetch({ limit: 100 }).then(messages => {
-            const myMessage: Message | undefined = messages.filter(message => message.embeds[0] && message.embeds[0].thumbnail?.url.split("?msgID=")[1] == msg.id).first();
-            if (!myMessage) return;
+                let embed = myMessage.embeds[0];
 
-            let embed = myMessage.embeds[0];
+                embed.setDescription(msg.content);
 
-            embed.setDescription(msg.content);
+                myMessage.edit(embed);
+            });
+        }
+    }
+}
 
-            myMessage.edit(embed);
-        });
-    });
+export async function deleteGlobalMessage(msg: Message | PartialMessage, channels: Channels): Promise<void> {
+    for (let channelID in channels) {
+        const channel = await client.channels.fetch(channels[channelID]).catch(err => { }) as TextChannel;
+
+        if (channel) {
+            channel.messages.fetch({ limit: 100 }).then(messages => {
+                const myMessage: Message | undefined = messages.filter(message => message.embeds[0] && message.embeds[0].thumbnail?.url.split("?msgID=")[1] == msg.id).first();
+                if (!myMessage) return;
+
+                if(!myMessage.deletable) return;
+
+                myMessage.delete();
+            });
+        }
+    }
 }
