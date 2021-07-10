@@ -4,6 +4,7 @@ import { client, config } from "..";
 import { error } from "../__shared/service/logger";
 import { authMember } from "../__shared/service/authGuard.service";
 import { sendNewGlobalMessage } from "../__shared/service/globalMessage.service";
+import { Channels } from "../__shared/models/channels.model";
 
 let commands = new Array();
 
@@ -16,13 +17,13 @@ export async function onMessage(msg: Message): Promise<void> {
     if (msg.webhookID || msg.author.bot) return;
     if(msg.channel.type != "text") return;
 
-    let channels: string[] = JSON.parse(readFileSync(`${__dirname}/../__shared/data/channels.json`, "utf-8").toString());
+    let channels: Channels = JSON.parse(readFileSync(`${__dirname}/../__shared/data/channels.json`, "utf-8").toString());
 
 
     const checkCommand = await checkForCommand(msg);
     if (checkCommand) return;
 
-    if (channels.includes(msg.channel.id)) sendNewGlobalMessage(msg, channels);
+    if (channels[msg.guild?.id || ""] == msg.channel.id) sendNewGlobalMessage(msg, channels);
 }
 
 async function checkForCommand(msg: Message): Promise<boolean | undefined> {
@@ -36,7 +37,7 @@ async function checkForCommand(msg: Message): Promise<boolean | undefined> {
     collectCommands();
 
     if (!commands.find(command => command.name == commandName)) {
-        msg.reply("command not found");
+        msg.reply("command not found").catch();
         return;
     }
 
@@ -46,17 +47,17 @@ async function checkForCommand(msg: Message): Promise<boolean | undefined> {
     const auth = authMember(msg.member);
 
     if (command.admin && !auth) {
-        msg.reply("unauthorized");
+        msg.reply("unauthorized").catch();
         return
     };
 
     if (!args[0] && command.info.argsRequired) {
-        msg.reply(command.info.help);
+        msg.reply(command.info.help).catch();
     } else {
         try {
             command.main(msg, args);
         } catch (err) {
-            msg.reply("command broken");
+            msg.reply("command broken").catch();
             error(err.code);
         }
         return true;

@@ -1,7 +1,8 @@
 import { Channel, Message, MessageEmbed, PartialMessage, TextChannel } from "discord.js";
 import { client } from "../..";
+import { Channels } from "../models/channels.model";
 
-export async function sendNewGlobalMessage(msg: Message, channels: string[]): Promise<void> {
+export async function sendNewGlobalMessage(msg: Message, channels: Channels): Promise<void> {
     if (msg.author.id == client.user?.id) return;
     let emebd = new MessageEmbed()
         .setTitle(msg.author.username)
@@ -26,14 +27,15 @@ export async function sendNewGlobalMessage(msg: Message, channels: string[]): Pr
         `);
     }
 
-    channels.forEach(async channel => {
-        if(channel == msg.channel.id) return;
-        client.channels.fetch(channel).then((channel: Channel) => {
+    for(let channel in channels) {
+        if(channels[channel] == msg.channel.id) return;
+
+        client.channels.fetch(channels[channel]).then((channel: Channel) => {
             if(!channel || channel.type != "text") return;
 
             (channel as TextChannel).send(emebd).catch(() => { });
         }).catch(err => {});
-    });
+    }
 }
 
 export async function updateGlobalMessage(msg: Message | PartialMessage, channels: string[]): Promise<void> {

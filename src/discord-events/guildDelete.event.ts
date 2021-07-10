@@ -1,13 +1,11 @@
 import { Guild } from "discord.js"
 import { readFileSync, writeFileSync } from "fs";
+import { Channels } from "../__shared/models/channels.model";
 
 export function guildDelete(guild: Guild): void {
-    let channels: string[] = JSON.parse(readFileSync(`${__dirname}/../channels.json`, "utf-8").toString()),
-        trash: string[] = new Array();
+    let channels: Channels = JSON.parse(readFileSync(`${__dirname}/../__shared/data/channels.json`, "utf-8").toString());
 
-    guild.channels.cache.forEach(channel =>  {
-        if(channels.indexOf(channel.id)) trash = channels.splice(channels.indexOf(channel.id), 1);
-    });
+    delete channels[guild.id];
 
-    writeFileSync(`${__dirname}/../channels.json`, JSON.stringify(channels));
+    writeFileSync(`${__dirname}/../__shared/data/channels.json`, JSON.stringify(channels));
 }
