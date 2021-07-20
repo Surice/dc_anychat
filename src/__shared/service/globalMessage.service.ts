@@ -49,7 +49,7 @@ export async function updateGlobalMessage(msg: Message | PartialMessage, channel
 
                 let embed = myMessage.embeds[0];
 
-                embed.setDescription(msg.content);
+                embed.fields[0].value = "**"+ msg.content+ "**";
 
                 myMessage.edit(embed);
             });
