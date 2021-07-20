@@ -10,7 +10,7 @@ export async function sendNewGlobalMessage(msg: Message, channels: Channels): Pr
         .setColor('#2F3136')
         .addField("\u200b", "**" + msg.content + "**")
         .addField("\u200b", "`🤖`" + `[Bot-Invite](${await client.generateInvite({ permissions: ["ADD_REACTIONS", "SEND_MESSAGES", "MANAGE_MESSAGES"] })}) ◊ ` + "`📍`[Server-Invite](https://twitch.tv/rocketment)")
-        .setFooter(msg.guild?.name + ` (${msg.guild?.members.cache.size} User)`, msg.guild?.iconURL({ dynamic: true }) || "");
+        .setFooter(msg.guild?.name + ` (${msg.guild?.memberCount} User)`, msg.guild?.iconURL({ dynamic: true }) || "");
 
     if (msg.attachments.first()) emebd.setImage(msg.attachments.first()?.url || "");
 
