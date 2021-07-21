@@ -1,9 +1,12 @@
 import { Channel, Message, MessageEmbed, PartialMessage, TextChannel } from "discord.js";
 import { client } from "../..";
 import { Channels } from "../models/channels.model";
+import { chatfilter } from "./chatFilter.service";
 
 export async function sendNewGlobalMessage(msg: Message, channels: Channels): Promise<void> {
     if (msg.author.id == client.user?.id) return;
+    if(await chatfilter(msg)) return;
+
     let emebd = new MessageEmbed()
         .setTitle(msg.author.username)
         .setThumbnail(msg.author.displayAvatarURL({ dynamic: true }) + `?msgID=${msg.id}`)
