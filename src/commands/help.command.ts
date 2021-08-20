@@ -25,5 +25,5 @@ export async function main(msg: Message, args: string[]): Promise<void> {
             name: "remove", value: "Removes a Channel from the global chat. \nuse `"+ config.prefix+"remove <#channel | channel_id>`"
         }]);
 
-    msg.reply(embed);
+    msg.reply({embeds: [embed]});
 }

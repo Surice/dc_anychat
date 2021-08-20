@@ -1,6 +1,5 @@
 import { Message } from "discord.js";
 import * as fs from 'fs';
-import { resolve } from "node:path";
 import { compareTwoStrings } from "string-similarity";
 import { client } from "../..";
 
@@ -18,7 +17,7 @@ export async function chatfilter(msg: Message): Promise<boolean | undefined> {
 
 
     const filtered: boolean | undefined = await new Promise(async (resolve) => {
-        if (checkForBlacklist(content.join(' '), msg)) {
+        if (checkForBlacklist(content.join(' '))) {
             sanction(msg, "watch your language!");
             resolve(true);
         }
@@ -40,7 +39,7 @@ export async function chatfilter(msg: Message): Promise<boolean | undefined> {
     return false;
 }
 
-function checkForBlacklist(content: string, msg: Message): string | undefined {
+function checkForBlacklist(content: string): string | undefined {
     const blacklist: string[] = JSON.parse(fs.readFileSync(`${__dirname}/../data/wordBlacklist.json`, "utf-8").toString());
     // const whitelist: string[] = JSON.parse(fs.readFileSync('./data/filterWhitelist.json', "utf-8").toString());
     const whitelist: string[] = [];
@@ -60,7 +59,7 @@ function checkForBlacklist(content: string, msg: Message): string | undefined {
         });
 
         if (result?.length && result?.length > 0) return blacklist[item];
-        if (counter[0] >= 0.50) return blacklist[item];
+        if (counter[0] >= 0.60) return blacklist[item];
     };
 }
 
@@ -95,7 +94,7 @@ async function checkSpam(msg: Message, content: string[]): Promise<boolean | und
 
     if (lastMessages[msg.author.id].length >= 4) {
         if (Number.parseInt(lastMessages[msg.author.id][lastMessages[msg.author.id].length - 3][0]) + 5000 > Date.now()) {
-            (await msg.channel.messages.fetch({ after: lastMessages[msg.author.id][lastMessages[msg.author.id].length - 4][1] })).filter(message => message.author.id == msg.author.id).forEach(message => message.delete());
+            (await msg.channel.messages.fetch({ after: lastMessages[msg.author.id][lastMessages[msg.author.id].length - 4][1] })).filter(message => message.author.id == msg.author.id).forEach(message => message.delete().catch(err => {}));
             
             return true;
         }
@@ -106,11 +105,11 @@ async function checkSpam(msg: Message, content: string[]): Promise<boolean | und
 
 
 export async function sanction(msg: Message, text: string): Promise<void> {
-    msg.delete();
-
-    msg.reply(text).then(reply => {
+    await msg.reply(text).then(reply => {
         setTimeout(() => {
             reply.delete();
         }, 3000);
     });
+
+    msg.delete().catch(err => {});
 }

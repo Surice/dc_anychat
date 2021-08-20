@@ -1,5 +1,5 @@
-import { MessageReaction, PartialUser, User } from "discord.js";
+import { MessageReaction, PartialMessageReaction, PartialUser, User } from "discord.js";
 
-export async function messageReactionRemove(reaction: MessageReaction, user: User | PartialUser): Promise<void> {
+export async function messageReactionRemove(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser): Promise<void> {
     
 }

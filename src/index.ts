@@ -3,7 +3,7 @@ import { error, info, success } from "./__shared/service/logger";
 import { Client } from "discord.js";
 import { readFileSync } from "fs";
 import { onReady } from "./discord-events/ready.event";
-import { onMessage } from "./discord-events/message.event";
+import { onMessage } from "./discord-events/messageCreate.event";
 import { messageReactionAdd } from "./discord-events/messageReactionAdd.event";
 import { messageReactionRemove } from "./discord-events/messageReactionRemove.event";
 import { Config } from "./__shared/models/config.model";
@@ -20,13 +20,16 @@ const config: Config = JSON.parse(readFileSync('./config.json', "utf-8").toStrin
 
 info("Init Discord Client");
 const client = new Client({
+    intents: [
+        "GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_MEMBERS"
+    ],
     partials: [
         'CHANNEL',
         'MESSAGE',
         'REACTION'
     ]
 });
-export {client, config};
+export { client, config };
 
 info("Try to login to Discord.js..");
 client.on('ready', () => {
@@ -35,7 +38,7 @@ client.on('ready', () => {
 
 
 /* Client events */
-client.on('message', onMessage);
+client.on('messageCreate', onMessage);
 client.on('messageUpdate', messageUpdate);
 client.on('messageDelete', messageDelete);
 

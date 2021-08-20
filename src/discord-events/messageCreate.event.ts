@@ -14,15 +14,16 @@ export async function onMessage(msg: Message): Promise<void> {
         console.log(msg.author);
         return;
     }
-    if (msg.webhookID || msg.author.bot) return;
-    if(msg.channel.type != "text") return;
+
+    if (msg.webhookId || msg.author.bot) return;
+    if (msg.channel.type != "GUILD_TEXT") return;
 
     let channels: Channels = JSON.parse(readFileSync(`${__dirname}/../__shared/data/channels.json`, "utf-8").toString());
 
 
     const checkCommand = await checkForCommand(msg);
     if (checkCommand) return;
-
+    
     if (channels[msg.guild?.id || ""] == msg.channel.id) sendNewGlobalMessage(msg, channels);
 }
 
@@ -43,7 +44,7 @@ async function checkForCommand(msg: Message): Promise<boolean | undefined> {
 
     let command = require(`../commands/${commandName}.command`);
 
-    if(!msg.member) return;
+    if (!msg.member) return;
     const auth = authMember(msg.member);
 
     if (command.admin && !auth) {

@@ -25,7 +25,7 @@ export async function main(msg: Message, args: string[]): Promise<void> {
         channel = msg.channel as TextChannel;
     }
 
-    if(channel.guild.id != msg.guild?.id || channel.type != "text") {
+    if(channel.guild.id != msg.guild?.id || channel.type != "GUILD_TEXT") {
         msg.reply("not allowed");
         return;
     }

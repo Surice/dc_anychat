@@ -1,5 +1,5 @@
-import { MessageReaction, PartialUser, User } from "discord.js";
+import { MessageReaction, PartialMessageReaction, PartialUser, User } from "discord.js";
 
-export async function messageReactionAdd(reaction: MessageReaction, user: User | PartialUser): Promise<void> {
+export async function messageReactionAdd(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser): Promise<void> {
     
 }
